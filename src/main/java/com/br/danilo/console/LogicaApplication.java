@@ -6,179 +6,135 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 
-//import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+
+import com.br.danilo.console.models.Aluno;
 
 @SpringBootApplication
 public class LogicaApplication {
 
-	private static List<String> nomes = new ArrayList<>();
-	private static List<String> situacao = new ArrayList<>();
-	private static List<Double> notas = new ArrayList<>();
-	private static int idAluno;
-	
-	public static void main(String[] args) throws IOException {
-			BufferedReader scanner = new BufferedReader(
-            new InputStreamReader(System.in));
+	private static BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
+	private static List<Aluno> alunos = new ArrayList<>();
 
-			int menuEscolha = 0;
-		
-		
-		System.out.println("===== Seja Bem Vindo ao sistema de cadastramento de notas. ====");
-		System.out.println("");
-		
-		do {
-			System.out.println("Selecione a Opção desejada: ");
-			System.out.println("1 - Cadastrar Aluno.");
-			System.out.println("2 - Exibir lista de Aluno.");
+	public static void main(String[] args) throws IOException, NumberFormatException, InterruptedException {
+		while(true){
+			limparTela();
 			
-			
-			System.out.println("Para sair Digite a senha: 9999.");
-			menuEscolha = lerDadoInt();
-			
-			if(menuEscolha != 9999) {
-				menuNavegacao(menuEscolha);
-				System.out.println("");
+			System.out.println("===== [ Cadastro dos alunos ] =======");
+			System.out.println("Qual opção você deseja?");
+			System.out.println("1 - Cadastrar aluno");
+			System.out.println("2 - Mostrar relatório");
+			System.out.println("3 - sair");
+
+			int opcao = 0;
+
+			try{
+				opcao = Integer.parseInt(reader.readLine());
 			}
-			
-		}while(menuEscolha != 9999);
-		
-		System.out.println("Finalizando Sistema ...");
-		System.out.println("Sistema Finalizado com Sucesso!");
-			
-			
-	}
+			catch(Exception e) {}
 
+			limparTela();
 
-
-	public static void menuNavegacao(int escolha) throws NumberFormatException, IOException {
-		
-		int quantidadeAlunos = 0;
-		
-		String nomeAluno = "";
-		double nota1 = 0;
-		double nota2 = 0;
-		double nota3 = 0;
-		
-		switch (escolha) {
-		case 1:
-			System.out.println("Digite a Quantidade de aluno que deseja cadastrar: ");
-			
-			quantidadeAlunos = lerDadoInt();
-			
-			for(int i = 1; i <= quantidadeAlunos; i++) {
-				System.out.println("Digite o Nome do aluno: ");
-				nomeAluno = lerDado();
-				System.out.println("Digite a nota 1 de "+nomeAluno+":");
-				nota1 = lerDadoDouble();
-				System.out.println("Digite a nota 2 de "+nomeAluno+":");
-				nota2 = lerDadoDouble();
-				System.out.println("Digite a nota 3 de "+nomeAluno+":");
-				nota3 = lerDadoDouble();
-				
-				adicionarAluno(idAluno, nomeAluno, nota1, nota2, nota3);
-				
-				System.out.println("Aluno Adicionado com Sucesso!");
-				
-				idAluno++;
-				System.out.println("");
+			var sair = false;
+			switch(opcao){
+				case 1:
+					cadastroAluno();
+					break;
+				case 2:
+					mostrarAlunos();
+					break;
+				case 3:
+					sair = true;
+					break;
+				default:
+					opcaoInvalida();
+					break;
 			}
-			break;
-		case 2:
-			System.out.println("=== Imprimindo Lista de Alunos. ===");
-			imprimirAlunoSituacao();
-			break;
-		
-		
-		
-		
-		
-		
-		
-		default:
-			System.out.println("Opção Invalida - Tente novamente.");
-			break;
-		}
-	}
-	
-	
-	
-	
-	public static String obterSituacaoAluno(double nota1, double nota2, double nota3) {
-		String situacao = "";
-		double media = (nota1 + nota2 + nota3) / 3;
-		
-		if(media>=7) {
-			situacao = "APROVADO";
-		}else if(media>=5){
-			situacao = "RECUPERAÇÃO";
-		}else if(media<5 && media >=0) {
-			situacao = "REPROVADO";
-		}
-		
-		
-		return situacao;
 
+			if(sair) break;
+		}
+		
+		
+		//SpringApplication.run(LogicaApplication.class, args);
+	}
 
-			
-			
-			
+	private static void limparTela() {
+		System.out.print("\033[H\033[2J");  
+    	System.out.flush();  
 	}
-	
-	public static void adicionarAluno(int idAluno, String nome, double nota1, double nota2, double nota3) {
-		nomes.add(idAluno, nome);
-		double media = (nota1 + nota2 + nota3) / 3;
-		notas.add(idAluno, media);
-		situacao.add(idAluno, obterSituacaoAluno(nota1, nota2, nota3));
-		
+
+	private static void opcaoInvalida() throws IOException, NumberFormatException, InterruptedException {
+		mensagem("Opção inválida");
 	}
-	
-	public static void imprimirAlunoSituacao() {
-		for(int i = 0; i <=nomes.size()-1;i++) {
-			System.out.println("Nome: "+nomes.get(i)+": "+situacao.get(i));
+
+	private static void capturaNotasAluno(Aluno aluno) throws NumberFormatException, IOException, InterruptedException {
+		System.out.println("Digite a nota do(a) " + aluno.getNome());
+		if(aluno.getNotas() == null) aluno.setNotas(new ArrayList<Float>());
+
+		try{
+			aluno.getNotas().add(Float.parseFloat(reader.readLine()));
+		}
+		catch(Exception e){
+			mensagem("Nota inválida");
+			capturaNotasAluno(aluno);
+		}
+
+		try{
+			System.out.println("Digite 1 para cadastrar mais notas ou 0 para finalizar o cadaastro");
+			int opcao = Integer.parseInt(reader.readLine());
+			if(opcao == 1) capturaNotasAluno(aluno);
+			return;
+		}
+		catch(Exception e) {
+			mensagem("Opção inválida, iniciando novo cadastro de nota");
+			capturaNotasAluno(aluno);
 		}
 	}
-	
-	
-	
-	
-	public static String lerDado() throws IOException {
-		BufferedReader scanner = new BufferedReader(
-            new InputStreamReader(System.in));
-		String texto = scanner.readLine();
-		
-		return texto;
+
+	private static void mensagem(String string) throws InterruptedException {
+		limparTela();
+		System.out.println(string);
+		espera(2);
+		limparTela();
 	}
-	
-	public static Integer lerDadoInt() throws NumberFormatException, IOException {
-		BufferedReader scanner = new BufferedReader(
-        new InputStreamReader(System.in));
-		int inteiro = Integer.parseInt(scanner.readLine());
-		
-		return inteiro;
+
+	private static void espera(int secconds) throws InterruptedException {
+		Thread.sleep(secconds*1000); 
 	}
-	
-	public  static Double lerDadoDouble() throws NumberFormatException, IOException {
-		BufferedReader scanner = new BufferedReader(
-        new InputStreamReader(System.in));
-		String nota = "";
-		nota = scanner.readLine();
-		
-		if(nota.contains(",")) {
-			String[] notaCorrigido = nota.split(",");
-			nota = notaCorrigido[0] + "." + notaCorrigido[1];
+
+	private static void mostrarAlunos() throws InterruptedException {
+		if(alunos.size() == 0){
+			mensagem("Nenhum aluno cadastrado");
+			return;
 		}
-		
-		double valor = Double.parseDouble(nota);
-		
-		while(valor>10||valor<0) {
-			System.out.println("Valor Invalido, Digite a nota Novamente: ");
-			valor = Double.parseDouble(scanner.readLine());
+
+		System.out.println("======== [ Relatório de alunos ] ========");
+		for (Aluno aluno : alunos) {
+			System.out.println("Nome: "+ aluno.getNome());
+			String notas = "";
+			for (float nota : aluno.getNotas()) {
+				notas += nota + ", ";
+			}
+			System.out.println("Notas: " + notas);
+			System.out.println("Média: " + aluno.media());
+			System.out.println("Situação: " + aluno.situacao());
+			System.out.println("-------------------------------");
 		}
-		
-		
-		
-		return valor;
+
+		espera(8);
+		limparTela();
+	}
+
+	private static void cadastroAluno() throws NumberFormatException, IOException, InterruptedException {
+		var aluno  = new Aluno();
+		System.out.println("Digite o nome do aluno");
+		aluno.setNome(reader.readLine());
+
+		capturaNotasAluno(aluno);
+
+		alunos.add(aluno);
+
+		mensagem("Aluno cadastrado com sucesso!");
 	}
 
 }
