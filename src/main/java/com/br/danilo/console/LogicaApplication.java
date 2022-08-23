@@ -4,7 +4,6 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
-import java.util.List;
 
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
@@ -14,7 +13,6 @@ import com.br.danilo.console.models.Aluno;
 public class LogicaApplication {
 
 	private static BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
-	private static List<Aluno> alunos = new ArrayList<>();
 
 	public static void main(String[] args) throws IOException, NumberFormatException, InterruptedException {
 		while(true){
@@ -103,13 +101,13 @@ public class LogicaApplication {
 	}
 
 	private static void mostrarAlunos() throws InterruptedException {
-		if(alunos.size() == 0){
+		if(Aluno.all().size() == 0){
 			mensagem("Nenhum aluno cadastrado");
 			return;
 		}
 
 		System.out.println("======== [ Relatório de alunos ] ========");
-		for (Aluno aluno : alunos) {
+		for (Aluno aluno : Aluno.all()) {
 			System.out.println("Nome: "+ aluno.getNome());
 			String notas = "";
 			for (float nota : aluno.getNotas()) {
@@ -132,7 +130,7 @@ public class LogicaApplication {
 
 		capturaNotasAluno(aluno);
 
-		alunos.add(aluno);
+		aluno.savar();
 
 		mensagem("Aluno cadastrado com sucesso!");
 	}
