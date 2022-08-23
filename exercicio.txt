@@ -1,0 +1,2 @@
+faça um progrma que leia 5 nomes
+depois mostre os 5 nomes na tela
