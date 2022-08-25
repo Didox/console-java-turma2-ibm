@@ -1,19 +1,13 @@
 package com.br.danilo.console.models;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.util.ArrayList;
+import java.lang.reflect.InvocationTargetException;
 import java.util.List;
-import java.util.Scanner;
 
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
+import com.br.danilo.console.interfaces.IEntidade;
+import com.br.danilo.console.interfaces.IPersistencia;
+import com.br.danilo.console.servicos.PersistenciaJson;
 
-public class Aluno {
-	private static List<Aluno> alunos = new ArrayList<>();
-
+public class Aluno implements IEntidade {
     private String nome;
     public String getNome() {
         return nome;
@@ -50,35 +44,13 @@ public class Aluno {
 
         return mediaCalculada;
     }
-    public void savar() {
-		Aluno.alunos.add(this);
-        try {
-            FileWriter myWriter = new FileWriter("alunos.json");
-            String alunosJson = new Gson().toJson(Aluno.alunos);
-            myWriter.write(alunosJson);
-            myWriter.close();
-        } catch (IOException e) {
-        }
+
+    public void salvar(IPersistencia persistencia) throws NoSuchMethodException, SecurityException, InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
+        persistencia.salvar(this);
     }
 
-    public static List<Aluno> all(){
-
-        if(Aluno.alunos == null || Aluno.alunos.size() == 0){
-            try {
-                File myObj = new File("alunos.json");
-                Scanner myReader = new Scanner(myObj);
-                String alunosJson = "";
-                while (myReader.hasNextLine()) {
-                    alunosJson += myReader.nextLine();
-                }
-                myReader.close();
-
-                Aluno.alunos = new Gson().fromJson(alunosJson,  new TypeToken<List<Aluno>>(){}.getType());
-            } catch (FileNotFoundException e) {
-            }
-        }
-
-        return Aluno.alunos;
+    public static List<IEntidade> all(){
+        return new PersistenciaJson(new Aluno().getClass()).Todos();
     }
 
     @Override    

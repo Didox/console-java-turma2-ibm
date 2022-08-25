@@ -3,18 +3,60 @@ package com.br.danilo.console;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
+import com.br.danilo.console.interfaces.IEntidade;
 import com.br.danilo.console.models.Aluno;
+import com.br.danilo.console.models.Escola;
+import com.br.danilo.console.models.Professor;
+import com.br.danilo.console.servicos.PersistenciaCSV;
+import com.br.danilo.console.servicos.PersistenciaJson;
 
 @SpringBootApplication
 public class LogicaApplication {
 
 	private static BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
 
-	public static void main(String[] args) throws IOException, NumberFormatException, InterruptedException {
+	public static void main(String[] args) throws IOException, InterruptedException, NoSuchMethodException, SecurityException, InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
+		
+		var a = new Aluno();
+		a.setNome("jardeu");
+		var notas = new ArrayList<Float>();
+		float nota = 9;
+		notas.add(nota);
+		a.setNotas(notas);
+
+		new PersistenciaCSV(a.getClass()).salvar(a);
+		new PersistenciaJson(a.getClass()).salvar(a);
+
+		//a.salvar(new PersistenciaCSV(a.getClass()));
+		// a.salvar(new PersistenciaJson(a.getClass()));
+
+
+		var prof = new Professor();
+		prof.setNome("Danilo");
+		prof.salvar();
+
+
+		var escola = new Escola();
+		escola.setNome("Danilo");
+		escola.setEndereco("Rua 123, cidade estado - SP");
+		new PersistenciaJson(escola.getClass()).salvar(escola);
+
+
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
 		while(true){
 			limparTela();
 			
@@ -107,7 +149,9 @@ public class LogicaApplication {
 		}
 
 		System.out.println("======== [ Relatório de alunos ] ========");
-		for (Aluno aluno : Aluno.all()) {
+		for (IEntidade entidade : Aluno.all()) {
+			var aluno  = (Aluno)entidade;
+			
 			System.out.println("Nome: "+ aluno.getNome());
 			String notas = "";
 			for (float nota : aluno.getNotas()) {
@@ -123,14 +167,14 @@ public class LogicaApplication {
 		limparTela();
 	}
 
-	private static void cadastroAluno() throws NumberFormatException, IOException, InterruptedException {
+	private static void cadastroAluno() throws IOException, InterruptedException, NoSuchMethodException, SecurityException, InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
 		var aluno  = new Aluno();
 		System.out.println("Digite o nome do aluno");
 		aluno.setNome(reader.readLine());
 
 		capturaNotasAluno(aluno);
 
-		aluno.savar();
+		aluno.salvar(new PersistenciaJson(aluno.getClass()));
 
 		mensagem("Aluno cadastrado com sucesso!");
 	}
